@@ -21,3 +21,5 @@ desktop.ini
 *.log
 *.swp
 node_modules/
+
+.vercel
