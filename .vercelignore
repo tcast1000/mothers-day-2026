@@ -1,0 +1,14 @@
+# Vercel CLI defaults to using .gitignore for deploy exclusions, but we
+# *want* the personal letter (content.js) and photos in the deployed site
+# while keeping them out of the public GitHub repo. Defining .vercelignore
+# overrides that default — only system files are excluded from deploy.
+node_modules
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+
+# Repo-only files that the live site doesn't need
+README.md
+photos/README.md
+_review/
