@@ -1,0 +1,706 @@
+/* ─────────────────────────────────────────────────────────
+   Theme tokens
+   ───────────────────────────────────────────────────────── */
+:root {
+  --box-color:        #f5a3bc;
+  --box-color-shade:  #d97a98;
+  --box-color-light:  #ffc6d8;
+  --ribbon-color:     #ffffff;
+  --ribbon-shade:     #ece4dc;
+
+  --bg-deep:    #07060d;
+  --bg-mid:     #14101e;
+  --spot-warm:  rgba(255, 230, 220, 0.55);
+
+  --paper:      #fbf6ec;
+  --paper-edge: #d8cdb6;
+  --ink:        #2a221c;
+
+  --polaroid:        #fbfaf6;
+  --polaroid-shadow: 0 8px 22px rgba(0, 0, 0, 0.45),
+                     0 2px 6px rgba(0, 0, 0, 0.35);
+
+  --box-size:    clamp(180px, 55vmin, 280px);
+  --box-half:    calc(var(--box-size) / 2);
+  --lid-height:  calc(var(--box-size) * 0.28);
+  --lid-size:    calc(var(--box-size) * 1.13);
+  --lid-overhang: calc((var(--lid-size) - var(--box-size)) / 2);
+  --lid-half:    calc(var(--lid-size) / 2);
+
+  --gift-tilt-x: -15deg;
+  --gift-tilt-y: -28deg;
+
+  --tap-shake-time:  540ms;
+  --lid-pop-time:    1100ms;
+  --walls-fall-time: 950ms;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Passphrase gate — soft client-side lock to keep casual
+   viewers out. The check is in script.js; the secret lives
+   in content.js (gitignored).
+   ───────────────────────────────────────────────────────── */
+.passphrase-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background:
+    radial-gradient(ellipse at 50% 30%, #2a1f33 0%, var(--bg-mid) 35%, var(--bg-deep) 75%),
+    var(--bg-deep);
+  transition: opacity 600ms ease;
+}
+.passphrase-overlay.unlocked {
+  opacity: 0;
+  pointer-events: none;
+}
+.passphrase-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+  padding: clamp(1.6rem, 6vw, 2.6rem) clamp(1.6rem, 7vw, 3rem);
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  background: linear-gradient(180deg, var(--paper) 0%, #f3ead8 100%);
+  color: var(--ink);
+  border-radius: 6px;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.45),
+    0 6px 14px rgba(0, 0, 0, 0.3),
+    inset 0 0 0 1px rgba(216, 205, 182, 0.6);
+}
+.passphrase-title {
+  margin: 0;
+  font-family: 'Great Vibes', cursive;
+  font-weight: 400;
+  font-size: clamp(2.4rem, 8vw, 3.4rem);
+  line-height: 1;
+  color: #5b3a48;
+}
+.passphrase-instruction {
+  margin: 0;
+  font-size: 1rem;
+  color: #6e5a4a;
+  letter-spacing: 0.02em;
+}
+.passphrase-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.15rem;
+  border: 1px solid rgba(180, 160, 130, 0.55);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--ink);
+  outline: none;
+  text-align: center;
+}
+.passphrase-input:focus {
+  border-color: var(--pink-deep, #c87291);
+  box-shadow: 0 0 0 3px rgba(200, 114, 145, 0.18);
+}
+.passphrase-submit {
+  align-self: center;
+  padding: 0.55rem 2rem;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #c87291, #f5a3bc);
+  color: white;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.passphrase-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(200, 114, 145, 0.35);
+}
+.passphrase-submit:active {
+  transform: translateY(0);
+}
+.passphrase-error {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #b54865;
+  font-style: italic;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Reset & base
+   ───────────────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
+body {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  color: #fbf6ec;
+  background:
+    radial-gradient(ellipse at 50% -10%, #2a1f33 0%, var(--bg-mid) 32%, var(--bg-deep) 70%),
+    var(--bg-deep);
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior-y: none;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Spotlight (cone of warm light from above)
+   ───────────────────────────────────────────────────────── */
+.spotlight {
+  /* Pool of warm light at the base of the box. No ray from above. */
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    radial-gradient(ellipse 26.4vmin 9vmin at 50% 55%,
+      rgba(255, 248, 232, 0.55) 0%,
+      rgba(255, 240, 215, 0.22) 35%,
+      transparent 70%);
+  mix-blend-mode: screen;
+}
+.spotlight::after {
+  /* Soft vignette to deepen the dark room around the pool */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80vmin 60vmin at 50% 50%,
+      transparent 35%,
+      rgba(0, 0, 0, 0.45) 100%);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Heading
+   ───────────────────────────────────────────────────────── */
+.heading {
+  position: relative;
+  z-index: 10;
+  margin: 0 0 1rem;
+  padding: 0 1rem;
+  text-align: center;
+  font-family: 'Great Vibes', cursive;
+  font-weight: 400;
+  font-size: clamp(2.8rem, 9vw, 6rem);
+  line-height: 1.05;
+  color: #fff5ec;
+  letter-spacing: 0.01em;
+  text-shadow:
+    0 2px 14px rgba(255, 230, 200, 0.55),
+    0 0 38px rgba(255, 200, 180, 0.35),
+    0 6px 26px rgba(0, 0, 0, 0.6);
+  animation: heading-glow 4.5s ease-in-out infinite alternate;
+}
+@keyframes heading-glow {
+  0%   { text-shadow: 0 2px 14px rgba(255, 230, 200, 0.45),
+                       0 0 30px rgba(255, 200, 180, 0.28),
+                       0 6px 26px rgba(0, 0, 0, 0.6); }
+  100% { text-shadow: 0 2px 18px rgba(255, 235, 210, 0.7),
+                       0 0 50px rgba(255, 210, 190, 0.45),
+                       0 6px 26px rgba(0, 0, 0, 0.6); }
+}
+
+/* ─────────────────────────────────────────────────────────
+   Stage / Scene
+   ───────────────────────────────────────────────────────── */
+.stage {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 1rem 2rem;
+}
+.scene {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  height: clamp(360px, 62vh, 580px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Gift / Present — CSS 3D box with continuous rotation
+   Adapted from a found reference, recolored pink + cream + white
+   ───────────────────────────────────────────────────────── */
+
+/* Color palette */
+:root {
+  --present-size: round(down, clamp(180px, 48vmin, 260px), 2px);
+  --present-half: calc(var(--present-size) / 2);
+  /* Kept at 0: any non-zero overhang pushes the lid faces past the box
+     body and triggers a Chrome rendering bug where the right strip of the
+     forward-facing lid panel gets clipped during rotation. */
+  --present-overhang: 0px;
+  /* No longer needed: box body walls now occupy only the bottom 64%, so
+     they don't overlap with lid sides at all. Kept at 0 for safety. */
+  --lid-z-lift: 0px;
+  /* Seam between lid bottom and box-body top, locked to even pixels so
+     both sides round identically and don't leave a 1px sub-pixel gap. */
+  --lid-side-height: round(down, calc(var(--present-size) * 0.36), 2px);
+
+  --pink-light: #ffc6d8;
+  --pink-mid:   #f5a3bc;
+  --pink-deep:  #c87291;
+
+  /* Lid uses the same pink family, just a touch lighter, so it blends
+     into the body but is still readable as a separate piece. */
+  --cream-light: #ffd6e2;
+  --cream-mid:   #f8b3c8;
+  --cream-deep:  #d685a3;
+
+  --ribbon-light: #ffffff;
+  --ribbon-deep:  #e9dec8;
+}
+
+.gift {
+  position: relative;
+  width: var(--present-size);
+  height: var(--present-size);
+  cursor: pointer;
+  perspective: 800px;
+  -webkit-tap-highlight-color: transparent;
+}
+.gift:focus { outline: none; }
+.gift:focus-visible {
+  outline: 2px dashed rgba(255, 220, 200, 0.6);
+  outline-offset: 18px;
+}
+
+.wiggle-container {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform-origin: bottom;
+}
+.gift.animate .wiggle-container {
+  animation: wiggle 0.32s ease 0s 1 normal forwards;
+}
+@keyframes wiggle {
+  0%   { transform: translateX(0) rotateZ(0); }
+  25%  { transform: translateX(calc(var(--count, 1) * -1px)) rotateZ(calc(var(--count, 1) * -1deg)); }
+  50%  { transform: translateX(0) rotateZ(0); }
+  75%  { transform: translateX(calc(var(--count, 1) * 1px)) rotateZ(calc(var(--count, 1) * 1deg)); }
+  100% { transform: translateX(0) rotateZ(0); }
+}
+
+/* Continuous slow rotation around the Y axis — kills the "horizontal-face-edge-on" issue
+   because the box presents many angles over time. JS freezes this on first tap. */
+.rotate-container {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateX(-22deg) rotateY(0);
+  animation: present-rotate 26s linear infinite;
+}
+@keyframes present-rotate {
+  0%   { transform: rotateX(-22deg) rotateY(0); }
+  100% { transform: rotateX(-22deg) rotateY(360deg); }
+}
+
+/* Box body — 5 faces (no top, lid covers it) */
+.bottom, .front, .left, .back, .right {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--pink-deep), var(--pink-mid) 55%, var(--pink-light));
+  box-shadow: inset 0 0 40px rgba(80, 25, 50, 0.18);
+  transform-style: preserve-3d;
+  transform-origin: bottom;
+  transition: transform 1s ease-out 1.6s;
+}
+.bottom {
+  transform: translateY(50%) rotateX(90deg);
+  background: linear-gradient(135deg, var(--pink-deep), #a55878);
+  transform-origin: 50% 50%;
+  transition: none;
+}
+/* Vertical walls occupy everything below the lid seam — the top portion
+   belongs to the lid sides, so the two sets of faces never overlap and
+   never z-fight. Both pieces reference the same --lid-side-height so the
+   seam lands on an exact pixel. */
+.front, .back, .left, .right {
+  top: var(--lid-side-height);
+  height: calc(var(--present-size) - var(--lid-side-height));
+}
+.front { transform: translateZ(var(--present-half)); }
+.back  { transform: translateZ(calc(-1 * var(--present-half))) rotateY(180deg); }
+.left  { transform: translateX(calc(-1 * var(--present-half))) rotateY(-90deg); }
+.right { transform: translateX(var(--present-half)) rotateY(90deg); }
+
+/* Ribbons are painted directly onto each face's surface via CSS mask:
+   the pseudo-element fills the face, has the ribbon color as its background,
+   and a horizontal mask cuts it down to a vertical stripe. No translateZ
+   means the ribbon is coplanar with the face — DOM order paints it on top,
+   and because there's zero offset, the stripe meets adjacent faces' stripes
+   exactly at every corner with no gap, no z-fight, and no flicker. */
+.front::after, .left::after, .back::after, .right::after,
+.lid-front::after, .lid-left::after, .lid-back::after, .lid-right::after,
+.lid-top::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, var(--ribbon-light), var(--ribbon-deep));
+  -webkit-mask: linear-gradient(to right,
+    transparent calc(50% - 11%),
+    black calc(50% - 11%),
+    black calc(50% + 11%),
+    transparent calc(50% + 11%));
+  mask: linear-gradient(to right,
+    transparent calc(50% - 11%),
+    black calc(50% - 11%),
+    black calc(50% + 11%),
+    transparent calc(50% + 11%));
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+}
+/* Horizontal half of the lid-top cross — same approach, perpendicular mask. */
+.lid-top::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, var(--ribbon-light), var(--ribbon-deep));
+  -webkit-mask: linear-gradient(to bottom,
+    transparent calc(50% - 11%),
+    black calc(50% - 11%),
+    black calc(50% + 11%),
+    transparent calc(50% + 11%));
+  mask: linear-gradient(to bottom,
+    transparent calc(50% - 11%),
+    black calc(50% - 11%),
+    black calc(50% + 11%),
+    transparent calc(50% + 11%));
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+}
+
+/* Lid — 5 faces, slightly larger than the box for overhang, sitting on top.
+   No bob animation — keeps the lid visually glued to the box during rotation. */
+.lid {
+  transform: translate3d(0, 0, 0);
+  transform-style: preserve-3d;
+  transition: transform 1s ease-out 1.6s;
+}
+
+.lid-top, .lid-left, .lid-back, .lid-right, .lid-front {
+  position: absolute;
+  top: 0;
+  left: calc(-1 * var(--present-overhang));
+  width: calc(var(--present-size) + 2 * var(--present-overhang));
+  background: linear-gradient(135deg, var(--cream-deep), var(--cream-mid) 50%, var(--cream-light));
+  box-shadow: inset 0 0 30px rgba(120, 95, 50, 0.18);
+  transform-style: preserve-3d;
+}
+.lid-top {
+  top: calc(-1 * var(--present-overhang));
+  height: calc(var(--present-size) + 2 * var(--present-overhang));
+  transform: translateY(-50%) rotateX(90deg);
+  background:
+    radial-gradient(ellipse at 50% 50%,
+      var(--cream-light) 0%,
+      var(--cream-mid) 60%,
+      var(--cream-deep) 110%);
+}
+.lid-left, .lid-back, .lid-right, .lid-front {
+  top: calc(-1 * var(--present-overhang));
+  height: var(--lid-side-height);
+}
+.lid-front { transform: translateZ(calc(var(--present-half) + var(--lid-z-lift))); }
+.lid-back  { transform: translateZ(calc(-1 * var(--present-half) - var(--lid-z-lift))) rotateY(180deg); }
+.lid-left  { transform: translateX(calc(-1 * var(--present-half) - var(--lid-z-lift))) rotateY(-90deg); }
+.lid-right { transform: translateX(calc(var(--present-half) + var(--lid-z-lift))) rotateY(90deg); }
+
+.gift:hover .lid {
+  transform: translate3d(0, -6px, 0);
+}
+
+/* Bow on top of the lid — sits above the cross of ribbon straps */
+.bow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 75%;
+  height: 75%;
+  transform: translate(-50%, -50%) translateZ(2.5px);
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Floor shadow — separate from the rotating box so it doesn't tilt */
+.floor-shadow-fixed {
+  position: absolute;
+  bottom: -10%;
+  left: 50%;
+  width: 130%;
+  height: 8%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.3) 35%,
+    rgba(0, 0, 0, 0) 75%);
+  filter: blur(8px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Open state — lid pops up, walls fall outward
+   ───────────────────────────────────────────────────────── */
+.gift.open {
+  cursor: default;
+}
+.gift.open .wiggle-container {
+  animation: none;
+}
+.gift.open .left  { transform: translateX(calc(-1 * var(--present-half))) rotateY(-90deg) rotateX(-90deg); }
+.gift.open .back  { transform: translateZ(calc(-1 * var(--present-half))) rotateY(180deg) rotateX(-90deg); }
+.gift.open .right { transform: translateX(var(--present-half)) rotateY(90deg) rotateX(-90deg); }
+.gift.open .front { transform: translateZ(var(--present-half)) rotateX(-90deg); }
+
+.gift.open .lid {
+  animation: none;
+  transform: translate3d(0, calc(-1 * var(--present-size) * 0.8), calc(-1 * var(--present-size) * 0.6)) rotateX(55deg);
+}
+
+.gift.open .front,
+.gift.open .left,
+.gift.open .back,
+.gift.open .right,
+.gift.open .lid {
+  transition: transform 0.9s cubic-bezier(0.68, -0.4, 0.27, 1.45);
+}
+
+/* ─────────────────────────────────────────────────────────
+   Confetti canvas
+   ───────────────────────────────────────────────────────── */
+#confetti-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Hint
+   ───────────────────────────────────────────────────────── */
+.hint {
+  display: none;
+}
+@keyframes hint-pulse {
+  0%, 100% { opacity: 0.45; transform: translateY(0); }
+  50%      { opacity: 0.85; transform: translateY(-3px); }
+}
+.hint.fade-out {
+  opacity: 0;
+  transition: opacity 400ms ease;
+  pointer-events: none;
+  animation: none;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Reveal — fixed overlay centered in viewport over the dimmed box
+   ───────────────────────────────────────────────────────── */
+.reveal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 4vh, 2.5rem) clamp(1rem, 4vw, 2.5rem);
+  gap: clamp(1rem, 3vh, 2rem);
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 700ms ease 250ms,
+              transform 800ms cubic-bezier(.2, 1, .3, 1) 250ms;
+  pointer-events: none;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.reveal.shown {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+/* Box dims when the reveal takes over */
+.gift {
+  transition: opacity 800ms ease;
+}
+.gift.dimmed {
+  opacity: 0.15;
+}
+
+/* Letter card */
+.letter {
+  background: linear-gradient(180deg, var(--paper) 0%, #f3ead8 100%);
+  color: var(--ink);
+  border-radius: 4px;
+  padding: clamp(1.4rem, 3vw, 2.6rem) clamp(1.2rem, 4vw, 3rem);
+  max-width: 560px;
+  margin: 0 auto;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1.05rem, 2.2vw, 1.25rem);
+  line-height: 1.55;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.45),
+    0 6px 14px rgba(0, 0, 0, 0.3),
+    inset 0 0 0 1px rgba(216, 205, 182, 0.6);
+  position: relative;
+  transform: rotate(-0.6deg);
+}
+.letter::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(180, 160, 130, 0.25);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.letter-greeting,
+.letter-body,
+.letter-signoff,
+.letter-signature {
+  margin: 0 0 1rem;
+}
+.letter-greeting {
+  font-style: italic;
+  font-weight: 500;
+  font-size: 1.1em;
+}
+.letter-body {
+  text-indent: 1.4em;
+}
+.letter-signoff {
+  margin-top: 1.6rem;
+  margin-bottom: 0.2rem;
+}
+.letter-signature {
+  font-family: 'Caveat', 'Great Vibes', cursive;
+  font-size: 1.7em;
+  color: #5b3a48;
+  margin: 0;
+  line-height: 1;
+}
+
+/* Polaroid scatter */
+.polaroids {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.8rem, 2vw, 1.6rem);
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 0.5rem;
+}
+.polaroid {
+  background: var(--polaroid);
+  padding: 10px 10px 32px;
+  box-shadow: var(--polaroid-shadow);
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  opacity: 0;
+  transform: translateY(-30px) rotate(0deg) scale(0.85);
+  animation: polaroid-drop 700ms cubic-bezier(.2, 1, .3, 1) forwards;
+  animation-delay: var(--delay, 0ms);
+}
+.polaroid-img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: #efe7d6;
+  display: block;
+}
+.polaroid-img.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e9dccb, #d6c4ad);
+  color: #7a6855;
+  font-family: 'Caveat', cursive;
+  font-size: 1.1rem;
+  text-align: center;
+  padding: 1rem;
+}
+.polaroid-caption {
+  font-family: 'Caveat', cursive;
+  font-size: 1.05rem;
+  text-align: center;
+  color: #4a3a2e;
+  margin: 0.4rem 0 0;
+  min-height: 1.3em;
+}
+@keyframes polaroid-drop {
+  0%   { opacity: 0; transform: translateY(-30px) rotate(0deg) scale(0.85); }
+  100% { opacity: 1; transform: translateY(0) rotate(var(--rot, -3deg)) scale(1); }
+}
+
+.polaroid:hover {
+  transform: translateY(0) rotate(0deg) scale(1.04);
+  transition: transform 350ms ease;
+  z-index: 2;
+}
+
+/* Desktop: scatter polaroids in a 4-up row, slight vertical offsets per slot */
+@media (min-width: 820px) {
+  .reveal {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: 3rem;
+  }
+  .letter { transform: rotate(-1deg); }
+  .polaroids {
+    max-width: 900px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.2rem;
+    align-items: center;
+  }
+  .polaroids .polaroid:nth-child(odd)  { margin-top: 1.4rem; }
+  .polaroids .polaroid:nth-child(even) { margin-bottom: 1.4rem; }
+}
+
+/* ─────────────────────────────────────────────────────────
+   Reduced motion
+   ───────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .heading { animation: none; }
+  .hint { animation: none; opacity: 0.7; }
+  .gift.shake-1, .gift.shake-2 { animation-duration: 200ms; }
+  .gift.opening .lid { animation-duration: 500ms; }
+  .wall { transition-duration: 400ms; }
+  .reveal { transition-duration: 400ms; }
+  .polaroid { animation-duration: 300ms; }
+}
+
+/* ─────────────────────────────────────────────────────────
+   Small screens
+   ───────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .scene { height: clamp(320px, 56vh, 460px); }
+  .letter { transform: rotate(0deg); }
+}

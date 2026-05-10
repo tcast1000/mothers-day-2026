@@ -1,0 +1,23 @@
+# Personal content - keep private. Ship content.example.js as the public template.
+content.js
+
+# Personal photos - never commit
+photos/*.jpg
+photos/*.jpeg
+photos/*.png
+photos/*.webp
+photos/*.gif
+photos/*.heic
+photos/*.heif
+!photos/.gitkeep
+!photos/README.md
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.log
+*.swp
+node_modules/

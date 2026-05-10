@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#0a0814" />
+  <title>Happy Mother's Day</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+
+  <div class="passphrase-overlay" id="passphrase-overlay" role="dialog" aria-modal="true" aria-label="Passphrase required">
+    <form class="passphrase-card" id="passphrase-form">
+      <h2 class="passphrase-title">For Mom</h2>
+      <p class="passphrase-instruction">enter the passphrase to open</p>
+      <input
+        type="text"
+        id="passphrase-input"
+        class="passphrase-input"
+        placeholder="passphrase"
+        autocomplete="off"
+        autocapitalize="none"
+        autocorrect="off"
+        spellcheck="false"
+        aria-label="Passphrase"
+      >
+      <button type="submit" id="passphrase-submit" class="passphrase-submit">open</button>
+      <p class="passphrase-error" id="passphrase-error" hidden>not quite &mdash; try again</p>
+    </form>
+  </div>
+
+  <main class="stage" id="stage">
+    <div class="spotlight" aria-hidden="true"></div>
+
+    <div class="scene" id="scene">
+      <div class="gift present" id="gift" role="button" tabindex="0" aria-label="Tap the gift to open it">
+        <div class="wiggle-container" id="wiggle-container">
+          <div class="rotate-container" id="rotate-container">
+            <div class="bottom"></div>
+            <div class="front"></div>
+            <div class="left"></div>
+            <div class="back"></div>
+            <div class="right"></div>
+            <div class="lid" id="lid">
+              <div class="lid-top">
+                <svg class="bow" viewBox="-60 -50 120 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <defs>
+                    <radialGradient id="bowGrad" cx="0.4" cy="0.3" r="0.7">
+                      <stop offset="0%"   stop-color="#ffffff"/>
+                      <stop offset="55%"  stop-color="#f8efdb"/>
+                      <stop offset="100%" stop-color="#b8a679"/>
+                    </radialGradient>
+                    <linearGradient id="knotGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%"   stop-color="#fff7e3"/>
+                      <stop offset="100%" stop-color="#a8946a"/>
+                    </linearGradient>
+                    <filter id="bowShadow" x="-30%" y="-30%" width="160%" height="160%">
+                      <feDropShadow dx="0" dy="3" stdDeviation="2" flood-opacity="0.5"/>
+                    </filter>
+                  </defs>
+                  <g filter="url(#bowShadow)">
+                    <ellipse cx="-30" cy="-2" rx="28" ry="18" fill="url(#bowGrad)" stroke="#8a7a5c" stroke-width="0.7" transform="rotate(-14 -30 -2)"/>
+                    <ellipse cx="30"  cy="-2" rx="28" ry="18" fill="url(#bowGrad)" stroke="#8a7a5c" stroke-width="0.7" transform="rotate(14 30 -2)"/>
+                    <ellipse cx="-20" cy="0"  rx="15" ry="10" fill="rgba(120, 100, 65, 0.32)"/>
+                    <ellipse cx="20"  cy="0"  rx="15" ry="10" fill="rgba(120, 100, 65, 0.32)"/>
+                    <ellipse cx="-40" cy="-10" rx="9" ry="3" fill="rgba(255,255,255,0.6)"/>
+                    <ellipse cx="40"  cy="-10" rx="9" ry="3" fill="rgba(255,255,255,0.6)"/>
+                    <path d="M -8 8 Q -16 22 -22 32 L -14 30 L -10 22 Q -6 14 0 9 Z"
+                          fill="url(#bowGrad)" stroke="#8a7a5c" stroke-width="0.4"/>
+                    <path d="M  8 8 Q  16 22  22 32 L  14 30 L  10 22 Q  6 14 0 9 Z"
+                          fill="url(#bowGrad)" stroke="#8a7a5c" stroke-width="0.4"/>
+                    <ellipse cx="0" cy="-1" rx="11" ry="15" fill="url(#knotGrad)" stroke="#8a7a5c" stroke-width="0.8"/>
+                    <ellipse cx="0" cy="-1" rx="5"  ry="12" fill="rgba(120, 100, 65, 0.22)"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="lid-front"></div>
+              <div class="lid-left"></div>
+              <div class="lid-back"></div>
+              <div class="lid-right"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="hint" id="hint">tap the gift</p>
+
+    <section class="reveal" id="reveal" aria-hidden="true">
+      <h1 class="heading" id="heading">Happy Mother's Day</h1>
+      <article class="letter" id="letter">
+        <p class="letter-greeting" id="letter-greeting"></p>
+        <p class="letter-body" id="letter-body"></p>
+        <p class="letter-signoff" id="letter-signoff"></p>
+        <p class="letter-signature" id="letter-signature"></p>
+      </article>
+      <div class="polaroids" id="polaroids"></div>
+    </section>
+  </main>
+
+  <script src="content.example.js"></script>
+  <script src="content.js" onerror="/* personal content not present, falling back to example */"></script>
+  <script src="script.js"></script>
+</body>
+</html>
